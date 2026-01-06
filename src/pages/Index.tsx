@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
-import { toast } from 'sonner';
 
 interface StatItem {
   label: string;
@@ -23,55 +21,26 @@ interface HistoryItem {
 const Index = () => {
   const [isOnline, setIsOnline] = useState(true);
   const [cameraLoading, setCameraLoading] = useState(true);
-  const [activityLevel, setActivityLevel] = useState(87);
-  const [history, setHistory] = useState<HistoryItem[]>([
+  const [history] = useState<HistoryItem[]>([
     { id: 1, timestamp: '2 min ago', action: 'Joined Server: Mega Obby Adventure', type: 'join' },
     { id: 2, timestamp: '15 min ago', action: 'Achievement Unlocked: Speed Master', type: 'achievement' },
     { id: 3, timestamp: '1 hour ago', action: 'Left Server: PvP Arena', type: 'leave' },
     { id: 4, timestamp: '2 hours ago', action: 'Suspicious Activity Detected', type: 'warning' },
+    { id: 5, timestamp: '3 hours ago', action: 'Joined Server: Sword Fight Arena', type: 'join' },
+    { id: 6, timestamp: '4 hours ago', action: 'Achievement Unlocked: First Victory', type: 'achievement' },
   ]);
 
   const stats: StatItem[] = [
     { label: 'Total Playtime', value: '342h', change: 12 },
     { label: 'Games Played', value: 89, change: 5 },
-    { label: 'Friends Online', value: 23, change: -2 },
+    { label: 'Friends Online', value: 14 },
     { label: 'Achievements', value: 156, change: 8 },
   ];
 
   useEffect(() => {
     const timer = setTimeout(() => setCameraLoading(false), 2000);
-    
-    const activityInterval = setInterval(() => {
-      setActivityLevel(prev => Math.max(50, Math.min(100, prev + Math.random() * 20 - 10)));
-    }, 3000);
-
-    const notificationInterval = setInterval(() => {
-      const actions = [
-        'Joined new server',
-        'Sent friend request',
-        'Changed avatar',
-        'Purchased item from shop',
-      ];
-      
-      toast.info('Player Activity Detected', {
-        description: actions[Math.floor(Math.random() * actions.length)],
-      });
-      
-      setHistory(prev => [
-        {
-          id: Date.now(),
-          timestamp: 'Just now',
-          action: actions[Math.floor(Math.random() * actions.length)],
-          type: Math.random() > 0.5 ? 'join' : 'achievement'
-        },
-        ...prev.slice(0, 9)
-      ]);
-    }, 15000);
-
     return () => {
       clearTimeout(timer);
-      clearInterval(activityInterval);
-      clearInterval(notificationInterval);
     };
   }, []);
 
@@ -115,92 +84,18 @@ const Index = () => {
           </Badge>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Player Profile</span>
-                <Badge variant="outline">serehka111</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-start gap-6">
-                <div className="w-24 h-24 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-4xl font-bold">
-                  S
-                </div>
-                <div className="flex-1 space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {stats.map((stat, idx) => (
-                      <div key={idx} className="space-y-1">
-                        <p className="text-xs text-muted-foreground">{stat.label}</p>
-                        <p className="text-2xl font-bold">{stat.value}</p>
-                        {stat.change && (
-                          <p className={`text-xs flex items-center gap-1 ${stat.change > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                            <Icon name={stat.change > 0 ? 'TrendingUp' : 'TrendingDown'} size={12} />
-                            {Math.abs(stat.change)}%
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Activity Level</span>
-                      <span className="font-medium">{Math.round(activityLevel)}%</span>
-                    </div>
-                    <Progress value={activityLevel} className="h-2" />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="Video" size={20} />
-                Camera Feed
-              </CardTitle>
-              <CardDescription>Live surveillance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
-                {cameraLoading ? (
-                  <div className="flex flex-col items-center gap-3">
-                    <Icon name="Loader2" className="animate-spin text-muted-foreground" size={32} />
-                    <p className="text-sm text-muted-foreground">Connecting to camera...</p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-3 p-8 text-center">
-                    <Icon name="VideoOff" className="text-muted-foreground" size={48} />
-                    <div>
-                      <p className="font-medium text-foreground">Camera Unavailable</p>
-                      <p className="text-xs text-muted-foreground mt-1">Signal lost or device offline</p>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => setCameraLoading(true)}>
-                      <Icon name="RefreshCw" size={14} className="mr-2" />
-                      Retry Connection
-                    </Button>
-                  </div>
-                )}
-                
-                {!cameraLoading && (
-                  <div className="absolute top-2 left-2">
-                    <Badge variant="destructive" className="animate-pulse">
-                      <Icon name="AlertCircle" size={12} className="mr-1" />
-                      ERROR
-                    </Badge>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        <Tabs defaultValue="statistics" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="player" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="player">
+              <Icon name="User" size={16} className="mr-2" />
+              Player
+            </TabsTrigger>
+            <TabsTrigger value="camera">
+              <Icon name="Video" size={16} className="mr-2" />
+              Camera
+            </TabsTrigger>
             <TabsTrigger value="statistics">
               <Icon name="BarChart3" size={16} className="mr-2" />
               Statistics
@@ -210,6 +105,99 @@ const Index = () => {
               History
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="player">
+            <Card>
+              <CardHeader>
+                <CardTitle>Player Profile</CardTitle>
+                <CardDescription>serehka111 account information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-start gap-6">
+                  <div className="w-32 h-32 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-5xl font-bold">
+                    S
+                  </div>
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <h3 className="text-2xl font-bold">serehka111</h3>
+                      <p className="text-muted-foreground">Active Player</p>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                      {stats.map((stat, idx) => (
+                        <div key={idx} className="space-y-1">
+                          <p className="text-xs text-muted-foreground">{stat.label}</p>
+                          <p className="text-3xl font-bold">{stat.value}</p>
+                          {stat.change && (
+                            <p className={`text-xs flex items-center gap-1 ${stat.change > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              <Icon name={stat.change > 0 ? 'TrendingUp' : 'TrendingDown'} size={12} />
+                              {Math.abs(stat.change)}%
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="camera">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Video" size={20} />
+                  Camera Feed
+                </CardTitle>
+                <CardDescription>Live surveillance system</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
+                  {cameraLoading ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <Icon name="Loader2" className="animate-spin text-muted-foreground" size={48} />
+                      <p className="text-muted-foreground">Connecting to camera...</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-3 p-8 text-center">
+                      <Icon name="VideoOff" className="text-muted-foreground" size={64} />
+                      <div>
+                        <p className="font-medium text-foreground text-lg">Camera Unavailable</p>
+                        <p className="text-sm text-muted-foreground mt-1">Signal lost or device offline</p>
+                      </div>
+                      <Button variant="outline" onClick={() => setCameraLoading(true)}>
+                        <Icon name="RefreshCw" size={16} className="mr-2" />
+                        Retry Connection
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {!cameraLoading && (
+                    <div className="absolute top-3 left-3">
+                      <Badge variant="destructive" className="animate-pulse">
+                        <Icon name="AlertCircle" size={14} className="mr-1" />
+                        ERROR
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
+                  <div className="flex items-start gap-3">
+                    <Icon name="Shield" className="text-primary mt-1" size={20} />
+                    <div>
+                      <p className="font-mono text-xs text-muted-foreground mb-2">ENCRYPTED MESSAGE:</p>
+                      <p className="font-mono text-sm mb-3">
+                        796f752068617665206e6f7468696e6720746f20646f20616e6472652c206920736565<br/>
+                        20616e79206f6620796f7572206d6f7665
+                      </p>
+                      <p className="text-lg font-medium text-foreground">ты мне досих пор не веришь андре?</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
           
           <TabsContent value="statistics" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
